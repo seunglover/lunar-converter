@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>음력 양력 변환기 — 윤달·간지·띠·명절 디데이</title>
+<meta name="description" content="양력을 음력으로, 음력을 양력으로 즉시 변환. 윤달 계산, 간지·띠 표시, 설날·추석 디데이까지. 1000년~2050년 지원하는 무료 웹 변환기.">
+<meta property="og:title" content="음력 양력 변환기">
+<meta property="og:description" content="윤달·간지·띠·설날 추석 디데이까지 한 번에. 무료 양음력 변환기">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  --bg1:#070b1e; --bg2:#101a3f;
+  --gold:#ffd479; --gold-deep:#f0a94e; --gold-soft:rgba(255,212,121,.13);
+  --ink:#e8ecf8; --muted:#8b93b8;
+  --glass:rgba(255,255,255,.06); --glass-brd:rgba(255,255,255,.12);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;
+  background:var(--bg1); color:var(--ink); overflow-x:hidden;
+}
+::selection{background:var(--gold);color:#3a2a00}
+
+/* ---------- 배경 ---------- */
+.sky{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(1400px 900px at 75% -5%, #1c2a5e 0%, var(--bg2) 42%, var(--bg1) 100%);}
+.stars i{position:absolute;background:#fff;border-radius:50%;opacity:.5;animation:tw 3s infinite}
+@keyframes tw{0%,100%{opacity:.12}50%{opacity:.75}}
+.moon{
+  position:fixed;top:-90px;right:-60px;width:300px;height:300px;border-radius:50%;z-index:0;pointer-events:none;
+  background:radial-gradient(circle at 35% 35%, #fffbe8 0%, #ffe9a8 45%, #f5c86e 100%);
+  box-shadow:0 0 80px 25px rgba(255,220,140,.22), 0 0 180px 80px rgba(255,220,140,.10);
+  animation:float 9s ease-in-out infinite;
+}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(16px)}}
+.moon::after{content:'';position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle at 62% 60%, rgba(0,0,0,.10) 0 12%, transparent 13%),
+             radial-gradient(circle at 40% 72%, rgba(0,0,0,.08) 0 8%, transparent 9%),
+             radial-gradient(circle at 72% 34%, rgba(0,0,0,.07) 0 6%, transparent 7%);}
+
+/* ---------- 레이아웃 ---------- */
+.wrap{position:relative;z-index:1;max-width:1060px;margin:0 auto;padding:0 22px}
+nav{display:flex;align-items:center;justify-content:space-between;padding:26px 0}
+nav .brand{font-weight:800;font-size:17px;letter-spacing:-.3px}
+nav .brand b{color:var(--gold)}
+nav a.btn{
+  display:inline-flex;align-items:center;gap:7px;text-decoration:none;color:var(--ink);
+  font-size:13.5px;font-weight:700;padding:9px 16px;border-radius:999px;
+  border:1px solid var(--glass-brd);background:var(--glass);transition:border-color .2s;
+}
+nav a.btn:hover{border-color:var(--gold)}
+
+/* ---------- 히어로 ---------- */
+.hero{text-align:center;padding:72px 0 54px}
+.hero .badge{
+  display:inline-block;font-size:12.5px;font-weight:700;color:var(--gold);
+  background:var(--gold-soft);border:1px solid rgba(255,212,121,.3);
+  padding:6px 14px;border-radius:999px;margin-bottom:20px;
+}
+.hero h1{font-size:clamp(34px,6vw,58px);font-weight:800;letter-spacing:-1.5px;line-height:1.2}
+.hero h1 em{font-style:normal;background:linear-gradient(135deg,#ffe9a8,#f0a94e);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--muted);font-size:clamp(14px,2.4vw,17px);margin-top:16px;line-height:1.7}
+.hero .cta{display:flex;gap:10px;justify-content:center;margin-top:30px;flex-wrap:wrap}
+.hero .cta a{
+  text-decoration:none;font-weight:800;font-size:15px;padding:14px 26px;border-radius:14px;transition:transform .12s;
+}
+.hero .cta a:active{transform:scale(.97)}
+.cta .primary{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#3a2a00;
+  box-shadow:0 8px 26px rgba(240,169,78,.35)}
+.cta .ghost{border:1px solid var(--glass-brd);background:var(--glass);color:var(--ink)}
+
+/* ---------- 툴 섹션 ---------- */
+.tool-sec{padding:26px 0 70px}
+.tool-frame{
+  max-width:520px;margin:0 auto;border-radius:26px;overflow:hidden;
+  border:1px solid var(--glass-brd);box-shadow:0 24px 70px rgba(0,0,0,.5);
+  background:var(--bg2);
+}
+.tool-frame iframe{display:block;width:100%;height:660px;border:0}
+
+/* ---------- 섹션 공통 ---------- */
+section{padding:56px 0}
+.sec-title{text-align:center;margin-bottom:40px}
+.sec-title h2{font-size:clamp(24px,4vw,34px);font-weight:800;letter-spacing:-.8px}
+.sec-title p{color:var(--muted);margin-top:10px;font-size:15px}
+
+/* ---------- 기능 카드 ---------- */
+.feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.feat .f{
+  background:var(--glass);border:1px solid var(--glass-brd);border-radius:20px;padding:26px 22px;
+  transition:transform .2s, border-color .2s;
+}
+.feat .f:hover{transform:translateY(-4px);border-color:rgba(255,212,121,.4)}
+.feat .f .ico{font-size:28px;margin-bottom:14px}
+.feat .f h3{font-size:16.5px;font-weight:800;margin-bottom:8px;letter-spacing:-.3px}
+.feat .f p{font-size:13.5px;color:var(--muted);line-height:1.65}
+
+/* ---------- 임베드 ---------- */
+.embed-box{
+  max-width:720px;margin:0 auto;background:rgba(0,0,0,.3);border:1px solid var(--glass-brd);
+  border-radius:18px;overflow:hidden;
+}
+.embed-box .bar{display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;border-bottom:1px solid var(--glass-brd);font-size:13px;color:var(--muted)}
+.embed-box .bar button{
+  background:var(--gold-soft);border:1px solid rgba(255,212,121,.3);color:var(--gold);
+  font-family:inherit;font-size:12.5px;font-weight:700;padding:7px 14px;border-radius:9px;cursor:pointer;
+  transition:background .2s;
+}
+.embed-box .bar button:hover{background:rgba(255,212,121,.25)}
+.embed-box pre{padding:18px;overflow-x:auto;font-size:12.8px;line-height:1.7;color:#b9c3e8;
+  font-family:'Courier New',monospace}
+.embed-box pre b{color:var(--gold);font-weight:400}
+
+/* ---------- 아티클 ---------- */
+article{max-width:720px;margin:0 auto;line-height:1.85;font-size:15px}
+article h3{font-size:20px;font-weight:800;margin:36px 0 12px;letter-spacing:-.4px;color:var(--gold)}
+article p{color:#c3c9e0;margin-bottom:12px}
+article ul{color:#c3c9e0;padding-left:20px;margin-bottom:12px}
+article li{margin-bottom:6px}
+article strong{color:var(--ink)}
+
+/* ---------- 푸터 ---------- */
+footer{border-top:1px solid var(--glass-brd);padding:30px 0 40px;text-align:center;
+  color:var(--muted);font-size:12.5px;line-height:2}
+footer a{color:var(--gold);text-decoration:none}
+@media(max-width:560px){
+  .tool-frame iframe{height:700px}
+  .hero{padding:48px 0 40px}
+}
+</style>
+</head>
+<body>
+<div class="sky stars" id="stars"></div>
+<div class="moon"></div>
+
+<div class="wrap">
+  <nav>
+    <div class="brand">🌕 <b>달님</b> 변환기</div>
+    <a class="btn" href="https://github.com/seunglover/lunar-converter" target="_blank" rel="noopener">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+      GitHub
+    </a>
+  </nav>
+
+  <header class="hero">
+    <span class="badge">✨ 1000년 ~ 2050년 · 한국천문연구원 기준 데이터</span>
+    <h1>양력을 음력으로,<br>음력을 <em>양력으로.</em></h1>
+    <p>윤달 계산부터 간지·띠, 설날·추석 디데이까지.<br>설치도 회원가입도 없이, 브라우저에서 바로.</p>
+    <div class="cta">
+      <a class="primary" href="#tool">지금 변환하기 ↓</a>
+      <a class="ghost" href="#embed">블로그에 달기</a>
+    </div>
+  </header>
+
+  <section class="tool-sec" id="tool">
+    <div class="tool-frame">
+      <iframe src="converter.html" title="음력 양력 변환기" loading="lazy"></iframe>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="sec-title">
+      <h2>이것만은 확실하게</h2>
+      <p>변환기 하나에 달력의 모든 것을 담았어요</p>
+    </div>
+    <div class="feat">
+      <div class="f"><div class="ico">🔄</div><h3>양방향 변환</h3><p>양력→음력, 음력→양력 모두 지원. 생일, 제사, 백일, 첫돌 날짜 계산에 바로 쓸 수 있어요.</p></div>
+      <div class="f"><div class="ico">🌗</div><h3>윤달 완벽 지원</h3><p>윤달이 있는 해를 자동으로 처리해요. 음력→양력 변환 시 윤달 여부만 체크하면 끝.</p></div>
+      <div class="f"><div class="ico">🐍</div><h3>간지 · 띠 표시</h3><p>을사년, 갑진년 같은 육십갑자와 십이지 띠를 변환 결과와 함께 보여줘요.</p></div>
+      <div class="f"><div class="ico">📅</div><h3>명절 디데이</h3><p>다음 설날과 추석이 며칠 남았는지 자동 계산. 올해 명절이 언제인지 더 이상 검색하지 마세요.</p></div>
+      <div class="f"><div class="ico">🗓️</div><h3>1050년치 데이터</h3><p>서기 1000년부터 2050년까지. 조상님 제사 날짜부터 미래 계획까지 커버해요.</p></div>
+      <div class="f"><div class="ico">⚡</div><h3>설치 불필요</h3><p>앱 설치도 로그인도 없이 브라우저에서 즉시 실행. 모바일에서도 완벽하게 동작해요.</p></div>
+    </div>
+  </section>
+
+  <section id="embed">
+    <div class="sec-title">
+      <h2>내 블로그에 달기</h2>
+      <p>iframe 한 줄이면 티스토리·네이버 블로그 어디든</p>
+    </div>
+    <div class="embed-box">
+      <div class="bar"><span>iframe 임베드 코드</span><button id="copyBtn">복사</button></div>
+      <pre id="embedCode">&lt;iframe src="<b>https://seunglover.github.io/lunar-converter/converter.html</b>"
+        width="100%" height="680" frameborder="0"
+        style="border-radius:16px"&gt;&lt;/iframe&gt;</pre>
+    </div>
+  </section>
+
+  <section>
+    <article>
+      <h3>음력이란?</h3>
+      <p>음력(陰曆)은 달의 공전 주기를 기준으로 만든 달력이에요. 달이 한 바퀴 도는 데 약 29.5일이 걸리기 때문에 음력의 한 달은 <strong>29일(소월) 또는 30일(대월)</strong>이 됩니다. 설날·추석·백중 같은 전통 명절과 제사 날짜가 음력을 따르기 때문에, 양력만으로는 매년 날짜가 달라지는 거예요.</p>
+
+      <h3>윤달(閏月)이란?</h3>
+      <p>음력 1년은 약 354일로 양력(365일)보다 11일 정도 짧아요. 이 차이가 쌓이면 계절과 달력이 어긋나기 때문에, <strong>약 2~3년에 한 번씩 한 달을 통째로 추가</strong>하는데 이것이 윤달입니다. 예를 들어 윤6월이 있는 해는 6월이 두 번 오는 거예요. 음력 생일이 윤달이라면 변환 시 반드시 윤달 여부를 확인해야 정확한 양력 날짜가 나옵니다.</p>
+
+      <h3>자주 묻는 질문</h3>
+      <ul>
+        <li><strong>음력 생일 양력으로 바꾸면 매년 달라지나요?</strong> 네. 음력 날짜는 양력으로 환산하면 매년 다른 날짜가 됩니다. 올해의 정확한 날짜는 변환기에서 올해 음력 날짜를 조회하세요.</li>
+        <li><strong>제사 날짜는 음력 기준인가요?</strong> 전통적으로 제사는 돌아가신 날의 음력 날짜를 기준으로 지내는 가정이 많습니다. 가풍에 따라 양력 기준으로 지내기도 해요.</li>
+        <li><strong>간지(干支)는 무엇인가요?</strong> 갑·을·병·정… (십간)과 자·축·인·묘… (십이지)를 조합한 60년 주기의 기년법이에요. 2025년은 을사년(乙巳年), 뱀의 해입니다.</li>
+        <li><strong>띠는 설날 기준인가요, 입춘 기준인가요?</strong> 일반적으로는 음력 1월 1일(설날) 기준으로 바뀐다고 보지만, 역학에서는 입춘(양력 2월 4일경)을 기준으로 하기도 합니다.</li>
+      </ul>
+    </article>
+  </section>
+
+  <footer>
+    🌕 달님 변환기 · 무료 오픈소스 양음력 변환 도구<br>
+    데이터 기준: 한국천문연구원 음양력 정보 (1000–2050년) ·
+    <a href="https://github.com/seunglover/lunar-converter" target="_blank" rel="noopener">GitHub에서 소스 보기</a>
+  </footer>
+</div>
+
+<script>
+// 별 생성
+const stars = document.getElementById('stars');
+for (let i = 0; i < 120; i++) {
+  const s = document.createElement('i');
+  const size = Math.random() * 2 + .6;
+  s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;width:${size}px;height:${size}px;animation-delay:${Math.random()*3}s`;
+  stars.appendChild(s);
+}
+// 임베드 코드 복사
+document.getElementById('copyBtn').addEventListener('click', function () {
+  const code = document.getElementById('embedCode').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    this.textContent = '복사됨 ✓';
+    setTimeout(() => this.textContent = '복사', 1600);
+  });
+});
+</script>
+</body>
+</html>
